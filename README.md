@@ -1,50 +1,63 @@
-# Welcome to your Expo app 👋
+# Anki - Japanese Vocabulary Flashcards
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A sleek, modern React Native application built with Expo for learning Japanese vocabulary through flashcards. Users can add new words and test their memory using a high-performance, 3D card-flipping quiz interface powered by a local database.
 
-## Get started
+## Features
 
-1. Install dependencies
+- **Vocabulary Deck**: View, manage, and delete your saved Japanese vocabulary.
+- **Add Words**: Clean, intuitive form to input Kanji/Kana, reading (Furigana/Romaji), and meaning.
+- **Spaced Repetition Quiz**: 
+  - Test yourself in highly-focused, 10-word sessions.
+  - Interactive 3D flip animations using `react-native-reanimated`.
+  - Smart scheduling queue based on "Remembered" or "Forgot" actions.
+- **Offline First**: All data is stored locally using SQLite.
+- **Slick UI**: "shadcn/ui" inspired aesthetic, dark-mode default, utilizing Unistyles.
 
+## Tech Stack
+
+- **Framework**: [React Native](https://reactnative.dev/) + [Expo Router](https://docs.expo.dev/router/introduction/)
+- **Package Manager**: [Bun](https://bun.sh/)
+- **State Management**: [Zustand](https://docs.pmnd.rs/zustand/getting-started/introduction) (using optimized `useShallow` selectors)
+- **Database**: `expo-sqlite` + [Drizzle ORM](https://orm.drizzle.team/)
+- **Styling**: [React Native Unistyles v3](https://www.unistyl.es/)
+- **Animations**: `react-native-reanimated`
+- **Testing**: Jest + React Native Testing Library + Bun test runner (in CI)
+
+## Getting Started
+
+### Prerequisites
+
+Ensure you have [Bun](https://bun.sh/) installed on your machine.
+
+### Installation
+
+1. Clone the repository and navigate to the project directory:
    ```bash
-   npm install
+   cd anki
    ```
 
-2. Start the app
-
+2. Install dependencies:
    ```bash
-   npx expo start
+   bun install
    ```
 
-In the output, you'll find options to open the app in a
+3. Start the Expo development server:
+   ```bash
+   bun run start
+   ```
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+4. Press `a` to open in an Android Emulator, `i` to open in the iOS Simulator, or scan the QR code with the Expo Go app on your physical device.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Testing
 
-## Get a fresh project
+The application includes unit tests for the Zustand state management store, completely mocking out the SQLite database layer to ensure fast, reliable execution.
 
-When you're ready, run:
+To run the tests:
 
 ```bash
-npm run reset-project
+bun run test
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Continuous Integration
 
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+This project includes a GitHub Actions CI pipeline (`.github/workflows/ci.yml`) that automatically runs on pushes and pull requests to the `main` branch. It ensures that dependencies install correctly, type-checking (`tsc --noEmit`) passes, and all Jest unit tests succeed.
