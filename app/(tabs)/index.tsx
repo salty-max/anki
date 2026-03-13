@@ -1,98 +1,129 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React, { useEffect, useCallback, memo } from 'react';
+import { View, Text, FlatList, RefreshControl } from 'react-native';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { useCardStore, Card } from '../../src/store';
+import { CardView } from '../../src/components/CardView';
+import { Button } from '../../src/components/Button';
+import { useShallow } from 'zustand/react/shallow';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
-
-export default function HomeScreen() {
+const MemoizedCardItem = memo(({ item, onDelete }: { item: Card; onDelete: (id: number) => void }) => {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <CardView style={styles.cardItem}>
+      <View style={styles.cardHeader}>
+        <Text style={styles.japanese}>{item.japanese}</Text>
+        <Button variant="danger" title="Delete" onPress={() => onDelete(item.id)} />
+      </View>
+      {item.reading && <Text style={styles.reading}>{item.reading}</Text>}
+      <Text style={styles.meaning}>{item.meaning}</Text>
+      <View style={styles.stats}>
+        <Text style={styles.statText}>Status: {item.status}</Text>
+        <Text style={styles.statText}>Due: {new Date(item.dueAt!).toLocaleDateString()}</Text>
+      </View>
+    </CardView>
+  );
+});
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+export default function DeckScreen() {
+  const { cards, loadCards, isLoading, deleteCard } = useCardStore(
+    useShallow((state) => ({
+      cards: state.cards,
+      loadCards: state.loadCards,
+      isLoading: state.isLoading,
+      deleteCard: state.deleteCard,
+    }))
+  );
+  
+  const { theme } = useUnistyles();
+
+  useEffect(() => {
+    loadCards();
+  }, [loadCards]);
+
+  const keyExtractor = useCallback((item: Card) => item.id.toString(), []);
+
+  const renderItem = useCallback(({ item }: { item: Card }) => (
+    <MemoizedCardItem item={item} onDelete={deleteCard} />
+  ), [deleteCard]);
+
+  const ListEmptyComponent = useCallback(() => (
+    <View style={styles.empty}>
+      <Text style={styles.emptyText}>Your deck is empty. Add some words!</Text>
+    </View>
+  ), []);
+
+  return (
+    <View style={styles.container}>
+      <FlatList
+        data={cards}
+        keyExtractor={keyExtractor}
+        contentContainerStyle={styles.list}
+        refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadCards} tintColor={theme.colors.primary} />}
+        ListEmptyComponent={ListEmptyComponent}
+        renderItem={renderItem}
+        initialNumToRender={10}
+        maxToRenderPerBatch={10}
+        windowSize={5}
+        removeClippedSubviews={true}
+      />
+    </View>
   );
 }
 
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+const styles = StyleSheet.create((theme) => ({
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
   },
-  stepContainer: {
-    gap: 8,
+  list: {
+    padding: 16,
+    gap: 16,
+  },
+  cardItem: {
+    padding: 16,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 8,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  japanese: {
+    fontFamily: theme.typography.boldJapanese,
+    fontSize: 24,
+    color: theme.colors.text,
   },
-});
+  reading: {
+    fontFamily: theme.typography.fontFamilyJapanese,
+    fontSize: 16,
+    color: theme.colors.muted,
+    marginBottom: 4,
+  },
+  meaning: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 18,
+    color: theme.colors.text,
+    marginBottom: 12,
+  },
+  stats: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border,
+    paddingTop: 12,
+  },
+  statText: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 12,
+    color: theme.colors.muted,
+  },
+  empty: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 32,
+  },
+  emptyText: {
+    fontFamily: theme.typography.fontFamily,
+    color: theme.colors.muted,
+    fontSize: 16,
+  },
+}));

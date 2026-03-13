@@ -1,24 +1,43 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import '../src/styles/unistyles';
+import { useFonts } from 'expo-font';
+import { Nunito_400Regular, Nunito_700Bold } from '@expo-google-fonts/nunito';
+import { NotoSansJP_400Regular, NotoSansJP_700Bold } from '@expo-google-fonts/noto-sans-jp';
 import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import * as SplashScreen from 'expo-splash-screen';
+import { useEffect } from 'react';
+import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
+import { db } from '../src/db';
+import migrations from '../drizzle/migrations';
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  const [loaded] = useFonts({
+    Nunito_400Regular,
+    Nunito_700Bold,
+    NotoSansJP_400Regular,
+    NotoSansJP_700Bold,
+  });
+
+  const { success, error } = useMigrations(db, migrations);
+
+  useEffect(() => {
+    if (loaded && (success || error)) {
+      if (error) {
+        console.error('Migration error:', error);
+      }
+      SplashScreen.hideAsync();
+    }
+  }, [loaded, success, error]);
+
+  if (!loaded || (!success && !error)) {
+    return null;
+  }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <Stack>
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="+not-found" />
+    </Stack>
   );
 }
