@@ -34,7 +34,8 @@ export default function AddScreen() {
     setIsFetching(true);
     try {
       // Use standard fetch as axios might trigger 403 on Jisho
-      const response = await fetch(`https://jisho.org/api/v1/search/words?keyword=${encodeURIComponent(meaning.trim())}`);
+      const apiUrl = process.env.EXPO_PUBLIC_JISHO_API_URL || 'https://jisho.org/api/v1/search/words';
+      const response = await fetch(`${apiUrl}?keyword=${encodeURIComponent(meaning.trim())}`);
       const json = await response.json();
 
       if (json.data && json.data.length > 0) {
