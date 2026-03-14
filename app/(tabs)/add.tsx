@@ -43,24 +43,11 @@ export default function AddScreen() {
       const apiUrl = process.env.EXPO_PUBLIC_JISHO_API_URL || 'https://jisho.org/api/v1/search/words';
       const searchTerm = meaning.trim().toLowerCase();
       
-      const [exactResponse, wildcardResponse] = await Promise.all([
-        fetch(`${apiUrl}?keyword=${encodeURIComponent(searchTerm)}`),
-        fetch(`${apiUrl}?keyword=${encodeURIComponent(searchTerm)}%20*`)
-      ]);
+      const response = await fetch(`${apiUrl}?keyword=${encodeURIComponent(searchTerm)}`);
+      const json = await response.json();
       
-      const exactJson = await exactResponse.json();
-      const wildcardJson = await wildcardResponse.json();
-      
-      let results: JishoResult[] = [];
-      if (exactJson.data && exactJson.data.length > 0) {
-        results = [...exactJson.data];
-      }
-      if (wildcardJson.data && wildcardJson.data.length > 0) {
-        results = [...results, ...wildcardJson.data];
-      }
-
-      if (results.length > 0) {
-        setSearchResults(results.slice(0, 10)); // Limit to 10 results
+      if (json.data && json.data.length > 0) {
+        setSearchResults(json.data.slice(0, 10));
         setResultsModalVisible(true);
       } else {
         Alert.alert('Not Found', 'No dictionary results found for that meaning.');
