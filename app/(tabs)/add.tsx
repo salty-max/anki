@@ -8,6 +8,7 @@ import { Input } from '../../src/components/Input';
 import { Button } from '../../src/components/Button';
 import { CardView } from '../../src/components/CardView';
 import { Search, Plus } from 'lucide-react-native';
+import { romajiToKana, katakanaToHiragana } from '../../src/utils/romaji';
 
 export default function AddScreen() {
   const [japanese, setJapanese] = useState('');
@@ -44,8 +45,11 @@ export default function AddScreen() {
         
         const jp = bestMatch.japanese[0];
         if (jp) {
-          setJapanese(jp.word || jp.reading || '');
-          setReading(jp.word ? jp.reading || '' : '');
+          const kanji = jp.word || jp.reading || '';
+          const readingText = jp.reading || '';
+          setJapanese(kanji);
+          // Convert katakana from jisho to hiragana
+          setReading(katakanaToHiragana(readingText));
           
           // Use just the first/best English definition
           const defs = bestMatch.senses[0]?.english_definitions;
@@ -115,13 +119,13 @@ export default function AddScreen() {
           <Input
             label="Japanese (Kanji/Kana)"
             value={japanese}
-            onChangeText={setJapanese}
+            onChangeText={(text) => setJapanese(romajiToKana(text, false))}
             placeholder="e.g. 犬 or いぬ"
           />
           <Input
             label="Reading (Furigana/Romaji)"
             value={reading}
-            onChangeText={setReading}
+            onChangeText={(text) => setReading(romajiToKana(text, true))}
             placeholder="e.g. いぬ"
           />
           
