@@ -41,12 +41,20 @@ Ensure you have [Bun](https://bun.sh/) installed on your machine.
    bun install
    ```
 
-3. Start the Expo development server:
+3. Create a development build:
+   Since this project uses `react-native-unistyles` and `expo-sqlite`, which contain custom native code, you cannot use Expo Go. You must create a native development build.
+
+   For iOS (requires macOS):
    ```bash
-   bun run start
+   bun run ios
    ```
 
-4. Press `a` to open in an Android Emulator, `i` to open in the iOS Simulator, or scan the QR code with the Expo Go app on your physical device.
+   For Android:
+   ```bash
+   bun run android
+   ```
+
+   This will automatically run `expo prebuild`, compile the native app, and install the custom dev client on your simulator/emulator or connected device.
 
 ## Testing
 
