@@ -6,10 +6,14 @@ import { eq } from 'drizzle-orm';
 export type Card = typeof cards.$inferSelect;
 export type NewCard = typeof cards.$inferInsert;
 
+export type CardFilter = 'all' | 'new' | 'learning' | 'graduated';
+
 interface CardStore {
   cards: Card[];
+  filter: CardFilter;
   isLoading: boolean;
   loadCards: () => Promise<void>;
+  setFilter: (filter: CardFilter) => void;
   addCard: (card: Omit<NewCard, 'id' | 'createdAt' | 'status'>) => Promise<void>;
   deleteCard: (id: number) => Promise<void>;
   reviewCard: (id: number, remembered: boolean) => Promise<void>;
@@ -17,7 +21,9 @@ interface CardStore {
 
 export const useCardStore = create<CardStore>((set, get) => ({
   cards: [],
+  filter: 'all',
   isLoading: true,
+  setFilter: (filter) => set({ filter }),
   loadCards: async () => {
     set({ isLoading: true });
     try {

@@ -28,9 +28,10 @@ export default function QuizScreen() {
   const flipRotation = useSharedValue(0);
 
   useEffect(() => {
-    if (!isActiveSession) {
-      const now = Date.now();
-      const toReview = cards.filter(c => c.dueAt! <= now).slice(0, 10);
+    if (!isActiveSession && cards.length > 0) {
+      // Shuffle and pick 10 random cards (or all if less than 10)
+      const shuffled = [...cards].sort(() => Math.random() - 0.5);
+      const toReview = shuffled.slice(0, 10);
       setSessionCards(toReview);
       setCurrentIndex(0);
       setScore(0);
