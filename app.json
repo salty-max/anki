@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "anki-temp",
-    "slug": "anki-temp",
+    "name": "anki",
+    "slug": "anki",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "ankitemp",
+    "scheme": "anki",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
