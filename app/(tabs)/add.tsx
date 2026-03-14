@@ -33,21 +33,48 @@ export default function AddScreen() {
 
     setIsFetching(true);
     try {
-      // Use standard fetch as axios might trigger 403 on Jisho
       const apiUrl = process.env.EXPO_PUBLIC_JISHO_API_URL || 'https://jisho.org/api/v1/search/words';
-      const response = await fetch(`${apiUrl}?keyword=${encodeURIComponent(meaning.trim())}`);
-      const json = await response.json();
+      const searchTerm = meaning.trim().toLowerCase();
+      
+      // Try multiple search strategies
+      let results: any[] = [];
+      
+      // Strategy 1: Search with keyword:* wildcard for partial matches in meanings
+      const wildcardResponse = await fetch(`${apiUrl}?keyword=${encodeURIComponent(searchTerm)}%20*`);
+      const wildcardJson = await wildcardResponse.json();
+      if (wildcardJson.data && wildcardJson.data.length > 0) {
+        results = wildcardJson.data;
+      }
+      
+      // Strategy 2: If no good results, try exact match
+      if (results.length === 0 || !results.some((r: any) => r.is_common)) {
+        const exactResponse = await fetch(`${apiUrl}?keyword=${encodeURIComponent(searchTerm)}`);
+        const exactJson = await exactResponse.json();
+        if (exactJson.data && exactJson.data.length > 0) {
+          results = exactJson.data;
+        }
+      }
 
-      if (json.data && json.data.length > 0) {
-        // Try to find a common word first
-        const bestMatch = json.data.find((item: any) => item.is_common) || json.data[0];
+      if (results.length > 0) {
+        // Find a common word, prefer ones where the english definition starts with our search term
+        let bestMatch = results.find((item: any) => item.is_common);
+        
+        // If no common word, try to find one where the primary sense matches our search
+        if (!bestMatch) {
+          bestMatch = results.find((item: any) => {
+            const defs = item.senses?.[0]?.english_definitions || [];
+            return defs.some((d: string) => d.toLowerCase().startsWith(searchTerm));
+          });
+        }
+        
+        // Fall back to first result
+        bestMatch = bestMatch || results[0];
         
         const jp = bestMatch.japanese[0];
         if (jp) {
           const kanji = jp.word || jp.reading || '';
           const readingText = jp.reading || '';
           setJapanese(kanji);
-          // Keep katakana as-is from jisho
           setReading(readingText);
         } else {
            Alert.alert('Not Found', 'Could not extract Japanese reading for this word.');
