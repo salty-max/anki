@@ -8,7 +8,7 @@ import { Input } from '../../src/components/Input';
 import { Button } from '../../src/components/Button';
 import { CardView } from '../../src/components/CardView';
 import { Search, Plus } from 'lucide-react-native';
-import { romajiToKana, katakanaToHiragana } from '../../src/utils/romaji';
+import { romajiToKana } from '../../src/utils/romaji';
 
 export default function AddScreen() {
   const [japanese, setJapanese] = useState('');
@@ -48,8 +48,8 @@ export default function AddScreen() {
           const kanji = jp.word || jp.reading || '';
           const readingText = jp.reading || '';
           setJapanese(kanji);
-          // Convert katakana from jisho to hiragana
-          setReading(katakanaToHiragana(readingText));
+          // Keep katakana as-is from jisho
+          setReading(readingText);
           
           // Use just the first/best English definition
           const defs = bestMatch.senses[0]?.english_definitions;
