@@ -1,17 +1,16 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, Switch, Pressable } from 'react-native';
+import React from 'react';
+import { View, Text, ScrollView, Switch } from 'react-native';
 import { StyleSheet, useUnistyles, UnistylesRuntime } from 'react-native-unistyles';
 import { CardView } from '../../src/components/CardView';
 import { Moon, Sun } from 'lucide-react-native';
 
 export default function SettingsScreen() {
   const { theme } = useUnistyles();
-  const [isDark, setIsDark] = useState(true);
+  const isDark = UnistylesRuntime.themeName === 'dark';
 
   const toggleTheme = () => {
     const newTheme = isDark ? 'light' : 'dark';
     UnistylesRuntime.setTheme(newTheme);
-    setIsDark(!isDark);
   };
 
   return (

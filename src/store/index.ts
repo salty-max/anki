@@ -22,7 +22,7 @@ interface CardStore {
 export const useCardStore = create<CardStore>((set, get) => ({
   cards: [],
   filter: 'all',
-  isLoading: true,
+  isLoading: false,
   setFilter: (filter) => set({ filter }),
   loadCards: async () => {
     set({ isLoading: true });
