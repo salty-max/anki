@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { View, ScrollView, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { useRouter } from 'expo-router';
+import { useNetInfo } from '@react-native-community/netinfo';
 import { useCardStore } from '../../src/store';
 import { Input } from '../../src/components/Input';
 import { Button } from '../../src/components/Button';
@@ -16,8 +17,14 @@ export default function AddScreen() {
   const addCard = useCardStore(state => state.addCard);
   const router = useRouter();
   const { theme } = useUnistyles();
+  const { isConnected } = useNetInfo();
 
   const handleAutocomplete = useCallback(async () => {
+    if (isConnected === false) {
+      Alert.alert('Offline', 'Dictionary autocomplete requires an internet connection.');
+      return;
+    }
+
     if (!meaning.trim()) {
       Alert.alert('Error', 'Please enter an English meaning first to search.');
       return;
@@ -55,7 +62,7 @@ export default function AddScreen() {
     } finally {
       setIsFetching(false);
     }
-  }, [meaning]);
+  }, [meaning, isConnected]);
 
   const handleAdd = useCallback(async () => {
     if (!japanese.trim() || !meaning.trim()) {
@@ -94,10 +101,10 @@ export default function AddScreen() {
           
           <View style={styles.autocompleteContainer}>
              <Button 
-               title={isFetching ? "Searching..." : "Auto-fill from English"} 
+               title={isConnected === false ? "Offline (Dictionary Disabled)" : isFetching ? "Searching..." : "Auto-fill from English"} 
                variant="secondary" 
                onPress={handleAutocomplete} 
-               disabled={isFetching}
+               disabled={isFetching || isConnected === false}
              />
              {isFetching && <ActivityIndicator style={styles.loader} color={theme.colors.primary} />}
           </View>
