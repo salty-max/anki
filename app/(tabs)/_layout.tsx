@@ -1,10 +1,19 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
+import { View, ActivityIndicator } from 'react-native';
 import { Library, PlusCircle, BrainCircuit } from 'lucide-react-native';
 import { useUnistyles } from 'react-native-unistyles';
 
 export default function TabLayout() {
   const { theme } = useUnistyles();
+
+  if (!theme || !theme.colors) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#09090b' }}>
+        <ActivityIndicator size="large" color="#fafafa" />
+      </View>
+    );
+  }
 
   return (
     <Tabs

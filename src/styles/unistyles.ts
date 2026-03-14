@@ -10,11 +10,13 @@ declare module 'react-native-unistyles' {
   export interface UnistylesThemes extends AppThemes {}
 }
 
+export const themes = {
+  light: lightTheme,
+  dark: darkTheme,
+}
+
 StyleSheet.configure({
-  themes: {
-    light: lightTheme,
-    dark: darkTheme,
-  },
+  themes,
   settings: {
     initialTheme: 'dark',
   },
