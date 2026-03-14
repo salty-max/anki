@@ -47,10 +47,10 @@ export default function AddScreen() {
           setJapanese(jp.word || jp.reading || '');
           setReading(jp.word ? jp.reading || '' : '');
           
-          // Optionally update meaning to the best English definition found
+          // Use just the first/best English definition
           const defs = bestMatch.senses[0]?.english_definitions;
           if (defs && defs.length > 0) {
-             setMeaning(defs.join(', '));
+             setMeaning(defs[0]);
           }
         } else {
            Alert.alert('Not Found', 'Could not extract Japanese reading for this word.');
