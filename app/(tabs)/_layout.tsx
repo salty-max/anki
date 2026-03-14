@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { View, ActivityIndicator } from 'react-native';
-import { Library, PlusCircle, BrainCircuit, Settings } from 'lucide-react-native';
+import { Library, PlusCircle, BrainCircuit, Settings, Type } from 'lucide-react-native';
 import { useUnistyles } from 'react-native-unistyles';
 
 export default function TabLayout() {
@@ -54,6 +54,13 @@ export default function TabLayout() {
         options={{
           title: 'Quiz',
           tabBarIcon: ({ color }) => <BrainCircuit color={color} size={24} />,
+        }}
+      />
+      <Tabs.Screen
+        name="kana"
+        options={{
+          title: 'Kana',
+          tabBarIcon: ({ color }) => <Type color={color} size={24} />,
         }}
       />
       <Tabs.Screen
