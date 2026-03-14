@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, ScrollView, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from 'react-native';
+import { View, ScrollView, KeyboardAvoidingView, Platform, Alert, ActivityIndicator, Modal, Pressable, Text as RNText } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { useRouter } from 'expo-router';
 import { useNetInfo } from '@react-native-community/netinfo';
@@ -7,20 +7,27 @@ import { useCardStore } from '../../src/store';
 import { Input } from '../../src/components/Input';
 import { Button } from '../../src/components/Button';
 import { CardView } from '../../src/components/CardView';
-import { Search, Plus } from 'lucide-react-native';
+import { Search, Plus, X } from 'lucide-react-native';
+
+interface JishoResult {
+  japanese: { word?: string; reading?: string }[];
+  senses: { english_definitions: string[] }[];
+}
 
 export default function AddScreen() {
   const [japanese, setJapanese] = useState('');
   const [reading, setReading] = useState('');
   const [meaning, setMeaning] = useState('');
   const [isFetching, setIsFetching] = useState(false);
+  const [resultsModalVisible, setResultsModalVisible] = useState(false);
+  const [searchResults, setSearchResults] = useState<JishoResult[]>([]);
   
   const addCard = useCardStore(state => state.addCard);
   const router = useRouter();
   const { theme } = useUnistyles();
   const { isConnected } = useNetInfo();
 
-  const handleAutocomplete = useCallback(async () => {
+  const handleSearch = useCallback(async () => {
     if (isConnected === false) {
       Alert.alert('Offline', 'Dictionary autocomplete requires an internet connection.');
       return;
@@ -36,49 +43,25 @@ export default function AddScreen() {
       const apiUrl = process.env.EXPO_PUBLIC_JISHO_API_URL || 'https://jisho.org/api/v1/search/words';
       const searchTerm = meaning.trim().toLowerCase();
       
-      // Try multiple search strategies
-      let results: any[] = [];
+      const [exactResponse, wildcardResponse] = await Promise.all([
+        fetch(`${apiUrl}?keyword=${encodeURIComponent(searchTerm)}`),
+        fetch(`${apiUrl}?keyword=${encodeURIComponent(searchTerm)}%20*`)
+      ]);
       
-      // Strategy 1: Search with keyword:* wildcard for partial matches in meanings
-      const wildcardResponse = await fetch(`${apiUrl}?keyword=${encodeURIComponent(searchTerm)}%20*`);
+      const exactJson = await exactResponse.json();
       const wildcardJson = await wildcardResponse.json();
-      if (wildcardJson.data && wildcardJson.data.length > 0) {
-        results = wildcardJson.data;
-      }
       
-      // Strategy 2: If no good results, try exact match
-      if (results.length === 0 || !results.some((r: any) => r.is_common)) {
-        const exactResponse = await fetch(`${apiUrl}?keyword=${encodeURIComponent(searchTerm)}`);
-        const exactJson = await exactResponse.json();
-        if (exactJson.data && exactJson.data.length > 0) {
-          results = exactJson.data;
-        }
+      let results: JishoResult[] = [];
+      if (exactJson.data && exactJson.data.length > 0) {
+        results = [...exactJson.data];
+      }
+      if (wildcardJson.data && wildcardJson.data.length > 0) {
+        results = [...results, ...wildcardJson.data];
       }
 
       if (results.length > 0) {
-        // Find a common word, prefer ones where the english definition starts with our search term
-        let bestMatch = results.find((item: any) => item.is_common);
-        
-        // If no common word, try to find one where the primary sense matches our search
-        if (!bestMatch) {
-          bestMatch = results.find((item: any) => {
-            const defs = item.senses?.[0]?.english_definitions || [];
-            return defs.some((d: string) => d.toLowerCase().startsWith(searchTerm));
-          });
-        }
-        
-        // Fall back to first result
-        bestMatch = bestMatch || results[0];
-        
-        const jp = bestMatch.japanese[0];
-        if (jp) {
-          const kanji = jp.word || jp.reading || '';
-          const readingText = jp.reading || '';
-          setJapanese(kanji);
-          setReading(readingText);
-        } else {
-           Alert.alert('Not Found', 'Could not extract Japanese reading for this word.');
-        }
+        setSearchResults(results.slice(0, 10)); // Limit to 10 results
+        setResultsModalVisible(true);
       } else {
         Alert.alert('Not Found', 'No dictionary results found for that meaning.');
       }
@@ -89,6 +72,20 @@ export default function AddScreen() {
       setIsFetching(false);
     }
   }, [meaning, isConnected]);
+
+  const handleSelectResult = useCallback((result: JishoResult) => {
+    const jp = result.japanese[0];
+    if (jp) {
+      setJapanese(jp.word || jp.reading || '');
+      setReading(jp.reading || '');
+    }
+    setResultsModalVisible(false);
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    setResultsModalVisible(false);
+    setSearchResults([]);
+  }, []);
 
   const handleAdd = useCallback(async () => {
     if (!japanese.trim() || !meaning.trim()) {
@@ -122,15 +119,15 @@ export default function AddScreen() {
             onChangeText={setMeaning}
             placeholder="e.g. dog"
             returnKeyType="search"
-            onSubmitEditing={handleAutocomplete}
+            onSubmitEditing={handleSearch}
           />
           
           <View style={styles.autocompleteContainer}>
              <Button 
-               title={isConnected === false ? "Offline (Dictionary Disabled)" : isFetching ? "Searching..." : "Auto-fill from English"} 
+               title={isConnected === false ? "Offline (Dictionary Disabled)" : isFetching ? "Searching..." : "Search Dictionary"} 
                variant="secondary" 
                icon={<Search size={16} color={theme.colors.text} />}
-               onPress={handleAutocomplete} 
+               onPress={handleSearch} 
                disabled={isFetching || isConnected === false}
              />
              {isFetching && <ActivityIndicator style={styles.loader} color={theme.colors.primary} />}
@@ -158,6 +155,47 @@ export default function AddScreen() {
           </View>
         </CardView>
       </ScrollView>
+
+      <Modal
+        visible={resultsModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={handleCloseModal}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: theme.colors.background }]}>
+            <View style={styles.modalHeader}>
+              <RNText style={[styles.modalTitle, { color: theme.colors.text }]}>Select a word</RNText>
+              <Pressable onPress={handleCloseModal}>
+                <X size={24} color={theme.colors.muted} />
+              </Pressable>
+            </View>
+            <ScrollView style={styles.resultsList}>
+              {searchResults.map((result, index) => {
+                const jp = result.japanese[0];
+                const defs = result.senses[0]?.english_definitions || [];
+                return (
+                  <Pressable
+                    key={index}
+                    style={[styles.resultItem, { borderBottomColor: theme.colors.border }]}
+                    onPress={() => handleSelectResult(result)}
+                  >
+                    <RNText style={[styles.resultJapanese, { color: theme.colors.text }]}>
+                      {jp?.word || jp?.reading || ''}
+                    </RNText>
+                    <RNText style={[styles.resultReading, { color: theme.colors.muted }]}>
+                      {jp?.reading || ''}
+                    </RNText>
+                    <RNText style={[styles.resultMeaning, { color: theme.colors.text }]} numberOfLines={1}>
+                      {defs.slice(0, 3).join(', ')}
+                    </RNText>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 }
@@ -181,5 +219,48 @@ const styles = StyleSheet.create((theme) => ({
   },
   buttonContainer: {
     marginTop: 16,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingTop: 16,
+    maxHeight: '70%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontFamily: theme.typography.bold,
+    fontSize: 18,
+  },
+  resultsList: {
+    paddingHorizontal: 16,
+  },
+  resultItem: {
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+  },
+  resultJapanese: {
+    fontFamily: theme.typography.boldJapanese,
+    fontSize: 20,
+  },
+  resultReading: {
+    fontFamily: theme.typography.fontFamilyJapanese,
+    fontSize: 14,
+    marginTop: 2,
+  },
+  resultMeaning: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 14,
+    marginTop: 4,
   },
 }));
