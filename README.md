@@ -1,71 +1,38 @@
-# Anki - Japanese Vocabulary Flashcards
+# Kanki - Master Japanese Vocabulary 🇯🇵
 
-A sleek, modern React Native application built with Expo for learning Japanese vocabulary through flashcards. Users can add new words and test their memory using a high-performance, 3D card-flipping quiz interface powered by a local database.
+*Unlock the power of Japanese fluency with beautifully designed, focused, and effective flashcards right in your pocket.*
 
-## Features
+Whether you are just starting with Hiragana or tackling complex Kanji, **Kanki** is your ultimate study companion. Built to get out of your way and let you focus entirely on learning, it combines modern, distraction-free design with powerful memory techniques.
 
-- **Vocabulary Deck**: View, manage, and delete your saved Japanese vocabulary.
-- **Add Words**: Clean, intuitive form to input Kanji/Kana, reading (Furigana/Romaji), and meaning.
-- **Spaced Repetition Quiz**: 
-  - Test yourself in highly-focused, 10-word sessions.
-  - Interactive 3D flip animations using `react-native-reanimated`.
-  - Smart scheduling queue based on "Remembered" or "Forgot" actions.
-- **Offline First**: All data is stored locally using SQLite.
-- **Slick UI**: "shadcn/ui" inspired aesthetic, dark-mode default, utilizing Unistyles.
+## Why Kanki? ✨
 
-## Tech Stack
+- **🧠 Learn Faster, Retain Longer**: Kanki uses built-in smart **Spaced Repetition**. It learns what you know and what you struggle with, surfacing the exact words you need to review exactly when your brain needs to see them.
+- **⚡ Bite-Sized Sessions**: Don't get overwhelmed by an endless wall of flashcards. Kanki serves you focused, **10-word quiz sessions** to keep you motivated and making rapid progress every day.
+- **📱 Gorgeous, Distraction-Free Design**: Say goodbye to clunky interfaces. Inspired by the clean aesthetics of top-tier modern apps, Kanki features a beautiful dark mode and slick 3D flipping animations that make studying feel like a joy, not a chore.
+- **✈️ 100% Offline, 100% Private**: No internet? No problem. Your entire vocabulary deck is securely stored locally on your device. Study on an airplane, on the subway, or completely off the grid. No accounts, no data tracking.
+- **✏️ Total Control**: Easily add your own custom vocabulary, including Kanji, Furigana (reading), and English meanings. Build the exact deck you need for your language goals.
 
-- **Framework**: [React Native](https://reactnative.dev/) + [Expo Router](https://docs.expo.dev/router/introduction/)
-- **Package Manager**: [Bun](https://bun.sh/)
-- **State Management**: [Zustand](https://docs.pmnd.rs/zustand/getting-started/introduction) (using optimized `useShallow` selectors)
-- **Database**: `expo-sqlite` + [Drizzle ORM](https://orm.drizzle.team/)
-- **Styling**: [React Native Unistyles v3](https://www.unistyl.es/)
-- **Animations**: `react-native-reanimated`
-- **Testing**: Jest + React Native Testing Library + Bun test runner (in CI)
+## Ready to Start Learning? 🚀
 
-## Getting Started
-
-### Prerequisites
-
-Ensure you have [Bun](https://bun.sh/) installed on your machine.
-
-### Installation
-
-1. Clone the repository and navigate to the project directory:
-   ```bash
-   cd anki
-   ```
-
-2. Install dependencies:
-   ```bash
-   bun install
-   ```
-
-3. Create a development build:
-   Since this project uses `react-native-unistyles` and `expo-sqlite`, which contain custom native code, you cannot use Expo Go. You must create a native development build.
-
-   For iOS (requires macOS):
-   ```bash
-   bun run ios
-   ```
-
-   For Android:
-   ```bash
-   bun run android
-   ```
-
-   This will automatically run `expo prebuild`, compile the native app, and install the custom dev client on your simulator/emulator or connected device.
-
-## Testing
-
-The application includes unit tests for the Zustand state management store, completely mocking out the SQLite database layer to ensure fast, reliable execution.
-
-To run the tests:
+Get the app running locally on your device in minutes!
 
 ```bash
-bun run test
+# 1. Enter the project
+cd anki
+
+# 2. Install the necessary tools (requires Bun)
+bun install
+
+# 3. Build and launch!
+# For iPhone/iPad (Requires macOS):
+bun run ios
+
+# For Android:
+bun run android
 ```
 
-## Continuous Integration
+> **Note**: Because Kanki delivers a premium, highly-optimized native experience with local databases and custom styling engines, it requires a native development build (which `bun run ios/android` handles automatically). 
 
-This project includes a GitHub Actions CI pipeline (`.github/workflows/ci.yml`) that automatically runs on pushes and pull requests to the `main` branch. It ensures that dependencies install correctly, type-checking (`tsc --noEmit`) passes, and all Jest unit tests succeed.
+---
+
+*For developers: Kanki is open-source and built on the cutting edge with React Native, Expo Router, Unistyles, Zustand, and Drizzle ORM.*
