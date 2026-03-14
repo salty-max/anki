@@ -1,4 +1,3 @@
-import '../src/styles/unistyles';
 import { useFonts } from 'expo-font';
 import { Nunito_400Regular, Nunito_700Bold } from '@expo-google-fonts/nunito';
 import { NotoSansJP_400Regular, NotoSansJP_700Bold } from '@expo-google-fonts/noto-sans-jp';
