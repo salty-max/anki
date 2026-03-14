@@ -5,13 +5,19 @@ import { useCardStore, Card } from '../../src/store';
 import { CardView } from '../../src/components/CardView';
 import { Button } from '../../src/components/Button';
 import { useShallow } from 'zustand/react/shallow';
+import { Trash2 } from 'lucide-react-native';
 
-const MemoizedCardItem = memo(({ item, onDelete }: { item: Card; onDelete: (id: number) => void }) => {
+const MemoizedCardItem = memo(({ item, onDelete, theme }: { item: Card; onDelete: (id: number) => void; theme: any }) => {
   return (
     <CardView style={styles.cardItem}>
       <View style={styles.cardHeader}>
         <Text style={styles.japanese}>{item.japanese}</Text>
-        <Button variant="danger" title="Delete" onPress={() => onDelete(item.id)} />
+        <Button 
+          variant="danger" 
+          title="Delete" 
+          icon={<Trash2 size={16} color={theme.colors.text} />}
+          onPress={() => onDelete(item.id)} 
+        />
       </View>
       {item.reading && <Text style={styles.reading}>{item.reading}</Text>}
       <Text style={styles.meaning}>{item.meaning}</Text>
@@ -42,8 +48,8 @@ export default function DeckScreen() {
   const keyExtractor = useCallback((item: Card) => item.id.toString(), []);
 
   const renderItem = useCallback(({ item }: { item: Card }) => (
-    <MemoizedCardItem item={item} onDelete={deleteCard} />
-  ), [deleteCard]);
+    <MemoizedCardItem item={item} onDelete={deleteCard} theme={theme} />
+  ), [deleteCard, theme]);
 
   const ListEmptyComponent = useCallback(() => (
     <View style={styles.empty}>

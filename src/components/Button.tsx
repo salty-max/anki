@@ -1,13 +1,14 @@
 import React from 'react';
-import { Pressable, Text, PressableProps } from 'react-native';
+import { Pressable, Text, View, PressableProps } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 interface ButtonProps extends PressableProps {
   title: string;
   variant?: 'primary' | 'secondary' | 'danger';
+  icon?: React.ReactNode;
 }
 
-export function Button({ title, variant = 'primary', style, ...props }: ButtonProps) {
+export function Button({ title, variant = 'primary', icon, style, ...props }: ButtonProps) {
   return (
     <Pressable
       {...props}
@@ -17,7 +18,10 @@ export function Button({ title, variant = 'primary', style, ...props }: ButtonPr
         return [...baseStyle, passedStyle];
       }}
     >
-      <Text style={styles.text(variant)}>{title}</Text>
+      <View style={styles.content}>
+        {icon && <View style={styles.icon}>{icon}</View>}
+        <Text style={styles.text(variant)}>{title}</Text>
+      </View>
     </Pressable>
   );
 }
@@ -33,6 +37,14 @@ const styles = StyleSheet.create((theme) => ({
     borderWidth: variant === 'secondary' ? 1 : 0,
     borderColor: theme.colors.border,
   }),
+  content: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  icon: {
+    marginRight: 8,
+  },
   text: (variant: 'primary' | 'secondary' | 'danger') => ({
     color: variant === 'primary' ? theme.colors.primaryText : theme.colors.text,
     fontFamily: theme.typography.bold,

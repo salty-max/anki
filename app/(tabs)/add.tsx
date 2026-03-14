@@ -7,6 +7,7 @@ import { useCardStore } from '../../src/store';
 import { Input } from '../../src/components/Input';
 import { Button } from '../../src/components/Button';
 import { CardView } from '../../src/components/CardView';
+import { Search, Plus } from 'lucide-react-native';
 
 export default function AddScreen() {
   const [japanese, setJapanese] = useState('');
@@ -103,6 +104,7 @@ export default function AddScreen() {
              <Button 
                title={isConnected === false ? "Offline (Dictionary Disabled)" : isFetching ? "Searching..." : "Auto-fill from English"} 
                variant="secondary" 
+               icon={<Search size={16} color={theme.colors.text} />}
                onPress={handleAutocomplete} 
                disabled={isFetching || isConnected === false}
              />
@@ -123,7 +125,11 @@ export default function AddScreen() {
           />
           
           <View style={styles.buttonContainer}>
-            <Button title="Add Flashcard" onPress={handleAdd} />
+            <Button 
+              title="Add Flashcard" 
+              icon={<Plus size={18} color={theme.colors.primaryText} />}
+              onPress={handleAdd} 
+            />
           </View>
         </CardView>
       </ScrollView>

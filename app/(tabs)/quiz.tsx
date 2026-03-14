@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, Pressable } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { useCardStore, Card } from '../../src/store';
 import { CardView } from '../../src/components/CardView';
 import { Button } from '../../src/components/Button';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, interpolate } from 'react-native-reanimated';
 import { useShallow } from 'zustand/react/shallow';
+import { X, Check, RotateCw } from 'lucide-react-native';
 
 export default function QuizScreen() {
   const { cards, reviewCard } = useCardStore(
@@ -14,6 +15,8 @@ export default function QuizScreen() {
       reviewCard: state.reviewCard,
     }))
   );
+  
+  const { theme } = useUnistyles();
   
   const [sessionCards, setSessionCards] = useState<Card[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -97,6 +100,7 @@ export default function QuizScreen() {
         <View style={styles.actions}>
           <Button 
             title="Start Next Session" 
+            icon={<RotateCw size={18} color={theme.colors.primaryText} />}
             onPress={() => setIsFinished(false)} // This will trigger useEffect if there are more due cards
             style={styles.actionBtn}
           />
@@ -146,12 +150,14 @@ export default function QuizScreen() {
           <Button 
             title="Forgot" 
             variant="danger" 
+            icon={<X size={18} color={theme.colors.text} />}
             style={styles.actionBtn}
             onPress={() => handleAnswer(false)} 
           />
           <Button 
             title="Remembered" 
             variant="primary" 
+            icon={<Check size={18} color={theme.colors.primaryText} />}
             style={styles.actionBtn}
             onPress={() => handleAnswer(true)} 
           />
