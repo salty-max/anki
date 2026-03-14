@@ -75,9 +75,14 @@ export default function AddScreen() {
 
   const handleSelectResult = useCallback((result: JishoResult) => {
     const jp = result.japanese[0];
+    const defs = result.senses[0]?.english_definitions || [];
     if (jp) {
       setJapanese(jp.word || jp.reading || '');
       setReading(jp.reading || '');
+      // Set the first English definition as the meaning
+      if (defs.length > 0) {
+        setMeaning(defs[0]);
+      }
     }
     setResultsModalVisible(false);
   }, []);
