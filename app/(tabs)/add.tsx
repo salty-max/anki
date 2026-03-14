@@ -50,12 +50,6 @@ export default function AddScreen() {
           setJapanese(kanji);
           // Keep katakana as-is from jisho
           setReading(readingText);
-          
-          // Use just the first/best English definition
-          const defs = bestMatch.senses[0]?.english_definitions;
-          if (defs && defs.length > 0) {
-             setMeaning(defs[0]);
-          }
         } else {
            Alert.alert('Not Found', 'Could not extract Japanese reading for this word.');
         }
