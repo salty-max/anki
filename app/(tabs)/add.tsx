@@ -8,7 +8,6 @@ import { Input } from '../../src/components/Input';
 import { Button } from '../../src/components/Button';
 import { CardView } from '../../src/components/CardView';
 import { Search, Plus } from 'lucide-react-native';
-import { romajiToKana } from '../../src/utils/romaji';
 
 export default function AddScreen() {
   const [japanese, setJapanese] = useState('');
@@ -113,13 +112,13 @@ export default function AddScreen() {
           <Input
             label="Japanese (Kanji/Kana)"
             value={japanese}
-            onChangeText={(text) => setJapanese(romajiToKana(text, false))}
+            onChangeText={setJapanese}
             placeholder="e.g. 犬 or いぬ"
           />
           <Input
-            label="Reading (Furigana/Romaji)"
+            label="Reading (Furigana)"
             value={reading}
-            onChangeText={(text) => setReading(romajiToKana(text, true))}
+            onChangeText={setReading}
             placeholder="e.g. いぬ"
           />
           
