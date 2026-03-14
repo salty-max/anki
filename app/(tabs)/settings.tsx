@@ -1,15 +1,45 @@
-import React from 'react';
-import { View, Text, ScrollView, Alert, Linking } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, Switch, Pressable } from 'react-native';
+import { StyleSheet, useUnistyles, UnistylesRuntime } from 'react-native-unistyles';
 import { CardView } from '../../src/components/CardView';
+import { Moon, Sun } from 'lucide-react-native';
 
 export default function SettingsScreen() {
   const { theme } = useUnistyles();
+  const [isDark, setIsDark] = useState(true);
+
+  const toggleTheme = () => {
+    const newTheme = isDark ? 'light' : 'dark';
+    UnistylesRuntime.setTheme(newTheme);
+    setIsDark(!isDark);
+  };
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.content}>
         <CardView>
+          <View style={styles.row}>
+            <View style={styles.labelContainer}>
+              {isDark ? (
+                <Moon size={20} color={theme.colors.text} style={styles.icon} />
+              ) : (
+                <Sun size={20} color={theme.colors.text} style={styles.icon} />
+              )}
+              <View>
+                <Text style={styles.sectionTitle}>Appearance</Text>
+                <Text style={styles.subtext}>{isDark ? 'Dark Mode' : 'Light Mode'}</Text>
+              </View>
+            </View>
+            <Switch
+              value={isDark}
+              onValueChange={toggleTheme}
+              trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
+              thumbColor={theme.colors.card}
+            />
+          </View>
+        </CardView>
+
+        <CardView style={styles.card}>
           <Text style={styles.sectionTitle}>About</Text>
           <Text style={styles.text}>Anki - Japanese Vocabulary Flashcards</Text>
           <Text style={styles.subtext}>Version 1.0.0</Text>
@@ -55,11 +85,22 @@ const styles = StyleSheet.create((theme) => ({
   card: {
     marginTop: 0,
   },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  labelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  icon: {
+    marginRight: 12,
+  },
   sectionTitle: {
     fontFamily: theme.typography.bold,
     fontSize: 18,
     color: theme.colors.text,
-    marginBottom: 12,
   },
   text: {
     fontFamily: theme.typography.fontFamily,
@@ -71,6 +112,6 @@ const styles = StyleSheet.create((theme) => ({
     fontFamily: theme.typography.fontFamily,
     fontSize: 13,
     color: theme.colors.muted,
-    marginTop: 4,
+    marginTop: 2,
   },
 }));
